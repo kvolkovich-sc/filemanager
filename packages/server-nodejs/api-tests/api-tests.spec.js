@@ -155,7 +155,6 @@ describe('Get resources metadata', () => {
     query({ orderDirection: 'DSC' }).
     catch(err => {
       if (err && err.response && err.response.request.res) {
-        console.log(err.response.request.res);
         expect(err.response.request.res.statusCode).to.equal(400);
         done();
       } else {
@@ -241,6 +240,285 @@ describe('Get resources metadata', () => {
     }).
     catch(err => {
       done(err);
+    });
+  });
+});
+
+describe('Search for files/dirs', () => {
+  it('Search in root directory (default params)', (done) => {
+    let nameSubstring = workChildDirName.slice(1, -1);
+
+    request.
+    get(`${baseUrl}/api/files/${rootId}/search`).
+    query({
+      itemNameSubstring: nameSubstring
+    }).
+    then(res => {
+      let jsonData = res.body;
+
+      expect(res.status).to.equal(200);
+      expect(jsonData.items.length).to.equal(1);
+
+      let item0 = jsonData.items[0];
+      expect(item0.type).to.equal('dir');
+      expect(item0.parentId).to.equal(rootId);
+      expect(item0.name).to.equal(workChildDirName);
+      expect(item0.ancestors.length).to.equal(1);
+
+      done();
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
+  it('Search with incorrect id', (done) => {
+    request.
+    get(`${baseUrl}/api/files/${createIncorrectId(workChildDirId, 'incorrect_dir_name')}/search`).
+    query({
+      itemNameSubstring: 'name'
+    }).
+    catch(err => {
+      if (err && err.response && err.response.request.res) {
+        expect(err.response.request.res.statusCode).to.equal(410);
+        done();
+      } else {
+        done(err);
+      }
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
+  it('Search in root directory (default params)', (done) => {
+    let nameSubstring = 'c';
+
+    request.
+    get(`${baseUrl}/api/files/${rootId}/search`).
+    query({
+      itemNameSubstring: nameSubstring
+    }).
+    then(res => {
+      let jsonData = res.body;
+
+      expect(res.status).to.equal(200);
+      expect(jsonData.items.length > 1).to.be.true;
+
+      done();
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
+  describe('Various itemNameCaseSensitive', () => {
+    it('Default params', (done) => {
+      let nameSubstring = workChildDirName.slice(1, -1).toUpperCase();
+
+      request.
+      get(`${baseUrl}/api/files/${rootId}/search`).
+      query({
+        itemNameSubstring: nameSubstring
+      }).
+      then(res => {
+        let jsonData = res.body;
+
+        expect(res.status).to.equal(200);
+        expect(jsonData.items.length).to.equal(1);
+
+        let item0 = jsonData.items[0];
+        expect(item0.type).to.equal('dir');
+        expect(item0.parentId).to.equal(rootId);
+        expect(item0.name).to.equal(workChildDirName);
+        expect(item0.ancestors.length).to.equal(1);
+
+        done();
+      }).
+      catch(err => {
+        done(err);
+      });
+    });
+
+    it('itemNameCaseSensitive equal false', (done) => {
+      let nameSubstring = workChildDirName.slice(1, -1).toUpperCase();
+
+      request.
+      get(`${baseUrl}/api/files/${rootId}/search`).
+      query({
+        itemNameSubstring: nameSubstring,
+        itemNameCaseSensitive: false
+      }).
+      then(res => {
+        let jsonData = res.body;
+
+        expect(res.status).to.equal(200);
+        expect(jsonData.items.length).to.equal(1);
+
+        let item0 = jsonData.items[0];
+        expect(item0.type).to.equal('dir');
+        expect(item0.parentId).to.equal(rootId);
+        expect(item0.name).to.equal(workChildDirName);
+        expect(item0.ancestors.length).to.equal(1);
+
+        done();
+      }).
+      catch(err => {
+        done(err);
+      });
+    });
+
+    it('itemNameCaseSensitive equal true', (done) => {
+      let nameSubstring = workChildDirName.slice(1, -1).toUpperCase();
+
+      request.
+      get(`${baseUrl}/api/files/${rootId}/search`).
+      query({
+        itemNameSubstring: nameSubstring,
+        itemNameCaseSensitive: true
+      }).
+      then(res => {
+        let jsonData = res.body;
+
+        expect(res.status).to.equal(200);
+        expect(jsonData.items.length).to.equal(0);
+
+        done();
+      }).
+      catch(err => {
+        done(err);
+      });
+    });
+  });
+
+  describe('Various itemType', () => {
+    it('itemType equal dir', (done) => {
+      let nameSubstring = workChildDirName.slice(1, -1);
+
+      request.
+      get(`${baseUrl}/api/files/${rootId}/search`).
+      query({
+        itemNameSubstring: nameSubstring,
+        itemType: 'dir'
+      }).
+      then(res => {
+        let jsonData = res.body;
+
+        expect(res.status).to.equal(200);
+        expect(jsonData.items.length).to.equal(1);
+
+        let item0 = jsonData.items[0];
+        expect(item0.type).to.equal('dir');
+        expect(item0.parentId).to.equal(rootId);
+        expect(item0.name).to.equal(workChildDirName);
+        expect(item0.ancestors.length).to.equal(1);
+
+        done();
+      }).
+      catch(err => {
+        done(err);
+      });
+    });
+
+    it('itemType equal file, resource is dir', (done) => {
+      let nameSubstring = workChildDirName.slice(1, -1);
+
+      request.
+      get(`${baseUrl}/api/files/${rootId}/search`).
+      query({
+        itemNameSubstring: nameSubstring,
+        itemType: 'file'
+      }).
+      then(res => {
+        let jsonData = res.body;
+
+        expect(res.status).to.equal(200);
+        expect(jsonData.items.length).to.equal(0);
+
+        done();
+      }).
+      catch(err => {
+        done(err);
+      });
+    });
+
+    it('itemType equal file, resource is file', (done) => {
+      let nameSubstring = workFileName.slice(1, -1);
+
+      request.
+      get(`${baseUrl}/api/files/${rootId}/search`).
+      query({
+        itemNameSubstring: nameSubstring,
+        itemType: 'file',
+        recursive: true
+      }).
+      then(res => {
+        let jsonData = res.body;
+
+        expect(res.status).to.equal(200);
+        expect(jsonData.items.length).to.equal(1);
+
+        let item = jsonData.items[0];
+        expect(item.parentId).to.equal(workChildDirId);
+        expect(item.type).to.equal('file');
+
+        done();
+      }).
+      catch(err => {
+        done(err);
+      });
+    });
+  });
+
+  describe('Various recursive', () => {
+    it('recursive equal false', (done) => {
+      let nameSubstring = workFileName.slice(1, -1);
+
+      request.
+      get(`${baseUrl}/api/files/${rootId}/search`).
+      query({
+        itemNameSubstring: nameSubstring,
+        itemType: 'file',
+        recursive: false
+      }).
+      then(res => {
+        let jsonData = res.body;
+
+        expect(res.status).to.equal(200);
+        expect(jsonData.items.length).to.equal(0);
+
+        done();
+      }).
+      catch(err => {
+        done(err);
+      });
+    });
+
+    it('recursive equal true', (done) => {
+      let nameSubstring = workFileName.slice(1, -1);
+
+      request.
+      get(`${baseUrl}/api/files/${rootId}/search`).
+      query({
+        itemNameSubstring: nameSubstring,
+        itemType: 'file',
+        recursive: true
+      }).
+      then(res => {
+        let jsonData = res.body;
+
+        expect(res.status).to.equal(200);
+        expect(jsonData.items.length).to.equal(1);
+
+        let item = jsonData.items[0];
+        expect(item.parentId).to.equal(workChildDirId);
+        expect(item.type).to.equal('file');
+
+        done();
+      }).
+      catch(err => {
+        done(err);
+      });
     });
   });
 });
@@ -722,6 +1000,66 @@ describe('Copy resouces', () => {
     });
   });
 
+  it('Copy file with incorrect id-1', (done) => {
+    let route = `${baseUrl}/api/files/${createIncorrectId(workChildDirId, 'incorrect_dir_name')}`;
+    let method = 'PATCH';
+
+    request(method, route).
+    type('application/json').
+    send({ parents: [newGrandchildId1, workChildDirId] }).
+    catch(err => {
+      if (err && err.response && err.response.request.res) {
+        expect(err.response.request.res.statusCode).to.equal(410);
+        done();
+      } else {
+        done(err);
+      }
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
+  it('Copy file with incorrect id-2', (done) => {
+    let route = `${baseUrl}/api/files/${workFileId}`;
+    let method = 'PATCH';
+
+    request(method, route).
+    type('application/json').
+    send({ parents: [createIncorrectId(workChildDirId, 'incorrect_dir_name'), workChildDirId] }).
+    catch(err => {
+      if (err && err.response && err.response.request.res) {
+        expect(err.response.request.res.statusCode).to.equal(410);
+        done();
+      } else {
+        done(err);
+      }
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
+  it('Copy file with incorrect id-3', (done) => {
+    let route = `${baseUrl}/api/files/${workFileId}`;
+    let method = 'PATCH';
+
+    request(method, route).
+    type('application/json').
+    send({ parents: [newGrandchildId1, createIncorrectId(workChildDirId, 'incorrect_dir_name')] }).
+    catch(err => {
+      if (err && err.response && err.response.request.res) {
+        expect(err.response.request.res.statusCode).to.equal(400);
+        done();
+      } else {
+        done(err);
+      }
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
   it('Copy file with new name', done => {
     copiedFileName = 'copied file';
     let route = `${baseUrl}/api/files/${workFileId}`;
@@ -849,6 +1187,52 @@ describe('Copy resouces', () => {
 });
 
 describe('Move resources', () => {
+  it('Move file with incorrect id-1', (done) => {
+    let route = `${baseUrl}/api/files/${createIncorrectId(copiedFileId, 'incorrect_dir_name')}`;
+    let method = 'PATCH';
+    let params = {
+      parents: [newGrandchildId3]
+    };
+
+    request(method, route).
+    type('application/json').
+    send(params).
+    catch(err => {
+      if (err && err.response && err.response.request.res) {
+        expect(err.response.request.res.statusCode).to.equal(410);
+        done();
+      } else {
+        done(err);
+      }
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
+  it('Move file with incorrect id-2', (done) => {
+    let route = `${baseUrl}/api/files/${copiedFileId}`;
+    let method = 'PATCH';
+    let params = {
+      parents: [createIncorrectId(copiedFileId, 'incorrect_dir_name')]
+    };
+
+    request(method, route).
+    type('application/json').
+    send(params).
+    catch(err => {
+      if (err && err.response && err.response.request.res) {
+        expect(err.response.request.res.statusCode).to.equal(410);
+        done();
+      } else {
+        done(err);
+      }
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
   it('Move file', done => {
     let route = `${baseUrl}/api/files/${copiedFileId}`;
     let method = 'PATCH';
@@ -986,6 +1370,30 @@ describe('Download', () => {
 });
 
 describe('Upload file', () => {
+  it('Upload file with incorrect id', (done) => {
+    let workDirPath = `../../demo/demo-fs/${workChildDirName}`;
+    let fileName = fs.readdirSync(workDirPath)[0];
+    let file = fs.readFileSync(`${workDirPath}/${fileName}`);
+    let route = `${baseUrl}/api/files`;
+
+    request.post(route).
+    field('type', 'file').
+    field('parentId', createIncorrectId(newGrandchildId3, 'incorrect_dir_name')).
+    attach('files', file, fileName).
+
+    catch(err => {
+      if (err && err.response && err.response.request.res) {
+        expect(err.response.request.res.statusCode).to.equal(410);
+        done();
+      } else {
+        done(err);
+      }
+    }).
+    catch(err => {
+      done(err);
+    });
+  });
+
   it('Upload file', done => {
     let workDirPath = `../../demo/demo-fs/${workChildDirName}`;
     let fileName = fs.readdirSync(workDirPath)[0];

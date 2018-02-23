@@ -146,9 +146,9 @@ jobs:
           name: bootstrap-packages
           command: yarn
 
-      - run:
-          name: lint
-          command: npm run lint
+#      - run:
+#          name: lint
+#          command: npm run lint
 
       - run:
           name: install-demo-dependencies

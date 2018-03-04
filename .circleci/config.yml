@@ -35,8 +35,4 @@ workflows:
 
   commit:
       jobs:
-        - build
-
-        - deploy-demo:
-            requires:
-              - build
+        - deploy-demo

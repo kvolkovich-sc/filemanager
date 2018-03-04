@@ -1,8 +1,8 @@
+FROM node:8-alpine
+
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
-
-FROM node:9-alpine
 
 LABEL maintainer="kirill.volkovich@opuscapita.com" \
       org.label-schema.name="filemanager-server-nodejs" \

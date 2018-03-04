@@ -29,7 +29,6 @@ jobs:
           name: docker-publish
           command: npm run docker:publish
 
-
 workflows:
   version: 2
 

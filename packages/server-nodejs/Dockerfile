@@ -1,5 +1,18 @@
-FROM node:8-alpine
-LABEL maintainer="kirill.volkovich@opuscapita.com"
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+FROM node:9-alpine
+
+LABEL maintainer="kirill.volkovich@opuscapita.com" \
+      org.label-schema.name="filemanager-server-nodejs" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/OpusCapita/filemanager" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vendor="OpusCapita Group Oy" \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0" \
+      org.label-schema.docker.cmd='docker run --rm -it -p 80:80 --mount type=bind,source="$(pwd)",target=/var/app-data ockvolkovich/filemanager-server'
 
 ENV PORT 80
 ENV HOST 0.0.0.0

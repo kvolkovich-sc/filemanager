@@ -14,17 +14,18 @@ LABEL maintainer="kirill.volkovich@opuscapita.com" \
       org.label-schema.schema-version="1.0" \
       org.label-schema.docker.cmd='docker run --rm -it -p 80:80 --mount type=bind,source="$(pwd)",target=/var/app-data ockvolkovich/filemanager-client-react-showroom'
 
-ENV PORT 80
 ENV HOST 0.0.0.0
 
 WORKDIR /app
 
 COPY ./.gh-pages-tmp /app
+COPY ./.env.js /app
 
 RUN cd /app && \
-    npm install -g http-server@0.11.1 && \
-    http-server -p $PORT -a $HOST
+    mkdir ./static && \
+    node -e "console.log('window.env = ' + JSON.stringify(require('./.env.js')) + ';')" > ./env.js && \
+    npm install -g http-server@0.11.1
 
 EXPOSE 80
 
-CMD ["npm", "start"]
+CMD ["http-server", "-p", "80", "-g"]

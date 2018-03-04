@@ -22,7 +22,9 @@
     "postinstall": "npm run bootstrap",
     "start": "lerna run start --parallel",
     "updated": "lerna updated || exit 0",
-    "publish": "lerna publish --exact --cd-version patch --yes && npm run changelog && git push"
+    "publish": "lerna publish --exact --cd-version patch --yes && npm run changelog && git push",
+    "docker:build": "lerna run docker:build",
+    "docker:publish": "lerna run docker:publish"
   },
   "useWorkspaces": true,
   "workspaces": [

@@ -13,7 +13,8 @@
     "build": "rimraf lib && cross-env NODE_ENV=production webpack --config ./config/webpack.config.js --hide-modules",
     "prepublish": "npm run build",
     "gh-pages:build": "rimraf .gh-pages-tmp && showroom-scan src && webpack --config ./config/doc/webpack.config.js && cp www/index.html .gh-pages-tmp",
-    "docker:build": "./docker-build.sh"
+    "docker:build": "./docker-build.sh",
+    "docker:publish": "./docker-publish.sh"
   },
   "license": "Apache-2.0",
   "repository": "OpusCapita/react-filemanager",

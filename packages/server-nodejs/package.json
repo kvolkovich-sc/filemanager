@@ -13,7 +13,8 @@
     "prepare-demo": "cd ../.. && rm -rf demo/demo-fs && cd demo && sh ./populate-demo-fs.sh && cd ../packages/server-nodejs",
     "test-restapi": "mocha --require config/test/mocha-setup.js --recursive api-tests/*.spec.js",
     "test-rest": "npm run prepare-demo && npm run test-restapi",
-    "docker:build": "./docker-build.sh"
+    "docker:build": "./docker-build.sh",
+    "docker:publish": "./docker-publish.sh"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

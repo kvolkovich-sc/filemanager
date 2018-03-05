@@ -48,6 +48,7 @@ spec:
     matchLabels:
       app: filemanager-server
       kind: demo
+  replicas: 2
   strategy:
     type: Recreate
   template:
@@ -59,9 +60,20 @@ spec:
       containers:
       - name: filemanager-server
         image: ockvolkovich/filemanager-server:1.0.4
+        env:
+          - name: OPUSCAPITA_FILEMANAGER_READONLY
+            value: ""
         ports:
         - containerPort: 80
           name: app
+        volumeMounts:
+        - name: workarea-persistent-storage
+          mountPath: /var/app-data
+      volumes:
+        - name: workarea-persistent-storage
+          persistentVolumeClaim:
+            claimName: workarea-pv-claim
+
 ---
 apiVersion: v1
 kind: Service
@@ -90,6 +102,7 @@ spec:
     matchLabels:
       app: filemanager-client-react-showroom
       kind: demo
+  replicas: 2
   strategy:
     type: Recreate
   template:
@@ -103,7 +116,27 @@ spec:
         image: ockvolkovich/filemanager-client-react-showroom:1.0.4
         env:
           - name: SERVER_URL
-            value: "13.95.212.20:81"
+            value: "http://minsk-core-kube-one-route.westeurope.cloudapp.azure.com/filemanager-demo/server"
         ports:
         - containerPort: 80
           name: app
+---
+# kind: StorageClass
+# apiVersion: storage.k8s.io/v1
+# metadata:
+#   name: minskcoresa
+# provisioner: kubernetes.io/azure-file
+# parameters:
+#   storageAccount: minskcoresa1
+---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: workarea-pv-claim
+# spec:
+#   accessModes:
+#     - ReadWriteMany
+#   storageClassName: minskcoresa
+#   resources:
+#     requests:
+#       storage: 5Gi

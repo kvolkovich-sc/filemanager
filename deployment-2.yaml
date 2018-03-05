@@ -1,0 +1,109 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: filemanager-demo
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/auth-type: "basic"
+    nginx.ingress.kubernetes.io/auth-secret: "basic-auth"
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
+spec:
+  rules:
+  - host: minsk-core-kube-one-route.westeurope.cloudapp.azure.com
+    http:
+      paths:
+      - path: "/filemanager-demo/client"
+        backend:
+          serviceName: filemanager-client-react-showroom
+          servicePort: 80
+      - path: "/filemanager-demo/server"
+        backend:
+          serviceName: filemanager-server
+          servicePort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: filemanager-server
+  labels:
+    app: filemanager-server
+    kind: demo
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: filemanager-server
+    kind: demo
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: filemanager-server
+  labels:
+    app: filemanager-server
+    kind: demo
+spec:
+  selector:
+    matchLabels:
+      app: filemanager-server
+      kind: demo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: filemanager-server
+        kind: demo
+    spec:
+      containers:
+      - name: filemanager-server
+        image: ockvolkovich/filemanager-server:1.0.4
+        ports:
+        - containerPort: 80
+          name: app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: filemanager-client-react-showroom
+  labels:
+    app: filemanager-client-react-showroom
+    kind: demo
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: filemanager-client-react-showroom
+    kind: demo
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: filemanager-client-react-showroom
+  labels:
+    app: filemanager-client-react-showroom
+    kind: demo
+spec:
+  selector:
+    matchLabels:
+      app: filemanager-client-react-showroom
+      kind: demo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: filemanager-client-react-showroom
+        kind: demo
+    spec:
+      containers:
+      - name: filemanager-client-react-showroom
+        image: ockvolkovich/filemanager-client-react-showroom:1.0.4
+        env:
+          - name: SERVER_URL
+            value: "13.95.212.20:81"
+        ports:
+        - containerPort: 80
+          name: app

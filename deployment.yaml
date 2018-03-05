@@ -6,8 +6,10 @@ metadata:
     app: filemanager-server
     kind: demo
 spec:
+  type: LoadBalancer
+  loadBalancerIP: 13.95.212.20
   ports:
-    - port: 81
+    - port: 80
   selector:
     app: filemanager-server
     kind: demo
@@ -48,6 +50,7 @@ metadata:
     kind: demo
 spec:
   type: LoadBalancer
+  loadBalancerIP: 13.95.212.20
   ports:
     - port: 80
   selector:
@@ -79,7 +82,7 @@ spec:
         image: ockvolkovich/filemanager-client-react-showroom:1.0.4
         env:
           - name: SERVER_URL
-            value: "http://oc-minsk-core-dev.westeurope.cloudapp.azure.com:81"
+            value: "13.95.212.20:81"
         ports:
         - containerPort: 80
           name: app

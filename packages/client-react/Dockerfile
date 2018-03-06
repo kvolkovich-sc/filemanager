@@ -23,9 +23,9 @@ COPY ./.env.js /app
 
 RUN cd /app && \
     mkdir ./static && \
-    node -e "console.log('window.env = ' + JSON.stringify(require('./.env.js')) + ';')" > ./env.js && \
-    npm install -g http-server@0.11.1
+    npm install -g http-server@0.11.1 && \
+    echo "node -e \"console.log('window.env = ' + JSON.stringify(require('./.env.js')) + ';')\" > env.js && http-server -p 80 -g" > start.sh
 
 EXPOSE 80
 
-CMD ["http-server", "-p", "80", "-g"]
+CMD ["sh", "start.sh"]
